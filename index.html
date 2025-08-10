@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Chance | Sistema de Mediação Familiar e Anamnese Psicológica</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .sidebar-active {
+            background-color: rgba(79, 70, 229, 0.1);
+            color: #4F46E5;
+            border-left: 3px solid #4F46E5;
+        }
+        .login-bg {
+            background-image: url('https://images.unsplash.com/photo-1596496181871-9681eacf9764?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Tela de Login -->
+    <div id="login-screen" class="min-h-screen flex flex-col md:flex-row">
+        <div class="login-bg w-full md:w-1/2 hidden md:block relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-900/80 to-purple-900/80 flex flex-col justify-center p-12">
+                <div class="max-w-md">
+                    <div class="flex items-center mb-8">
+                        <div class="w-12 h-12 rounded-full gradient-bg text-white flex items-center justify-center text-2xl font-bold mr-3">
+                            NC
+                        </div>
+                        <h1 class="text-3xl font-bold text-white">Nova Chance</h1>
+                    </div>
+                    <h2 class="text-4xl font-bold text-white mb-6">Transformando conflitos em oportunidades de recomeço</h2>
+                    <p class="text-white/80 text-lg mb-8">Nossa plataforma integrada permite que mediadores e psicólogos trabalhem juntos para promover a resolução de conflitos e o bem-estar emocional das famílias.</p>
+                    <div class="flex space-x-4">
+                        <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                            <p class="text-white font-medium">+ 500</p>
+                            <p class="text-white/70 text-sm">Famílias atendidas</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                            <p class="text-white font-medium">97%</p>
+                            <p class="text-white/70 text-sm">Taxa de resolução</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm">
+                            <p class="text-white font-medium">42</p>
+                            <p class="text-white/70 text-sm">Profissionais</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-full md:w-1/2 flex items-center justify-center p-8 md:p-16 bg-white">
+            <div class="max-w-md w-full">
+                <div class="text-center mb-8 md:hidden">
+                    <div class="w-16 h-16 rounded-full gradient-bg text-white flex items-center justify-center text-3xl font-bold mx-auto mb-4">
+                        NC
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-800">Nova Chance</h1>
+                    <p class="text-gray-600">Sistema de Mediação Familiar</p>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Bem-vindo de volta</h2>
+                <p class="text-gray-600 mb-8">Por favor, entre com suas credenciais para acessar o sistema</p>
+                
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label for="email-address" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input id="email-address" name="email" type="email" autocomplete="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                            <a href="#" class="text-sm text-indigo-600 hover:text-indigo-500">Esqueceu a senha?</a>
+                        </div>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">Lembrar-me</label>
+                    </div>
+
+                    <div>
+                        <button type="button" onclick="login()" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-8">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">Ou continue com</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid grid-cols-3 gap-3">
+                        <div>
+                            <a href="#" onclick="loginWithGoogle()" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fab fa-google"></i>
+                            </a>
+                        </div>
+
+                        <div>
+                            <a href="#" onclick="loginWithMicrosoft()" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fab fa-microsoft"></i>
+                            </a>
+                        </div>
+                        
+                        <div>
+                            <a href="#" onclick="loginWithGitHub()" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema Principal (inicialmente oculto) -->
+    <div id="main-system" class="hidden">
+        <div class="drawer drawer-mobile">
+            <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+            
+            <div class="drawer-content flex flex-col">
+                <!-- Header/Navbar -->
+                <div class="navbar bg-base-100 border-b border-gray-200 sticky top-0 z-30">
+                    <div class="flex-1">
+                        <label for="my-drawer-2" class="btn btn-ghost drawer-button lg:hidden">
+                            <i class="fas fa-bars"></i>
+                        </label>
+                        <div class="breadcrumbs text-sm">
+                            <ul>
+                                <li><a>Home</a></li>
+                                <li>Dashboard</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="flex-none gap-2">
+                        <div class="form-control">
+                            <div class="input-group">
+                                <input type="text" placeholder="Buscar..." class="input input-bordered input-sm" />
+                                <button class="btn btn-square btn-sm">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-ghost btn-circle" onclick="toggleTheme()">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="dropdown dropdown-end">
+                            <button class="btn btn-ghost btn-circle relative">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                            </button>
+                            <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-72 mt-4">
+                                <div class="p-3 border-b border-gray-200">
+                                    <h3 class="font-medium">Notificações</h3>
+                                </div>
+                                <li class="border-b border-gray-100">
+                                    <a class="py-3">
+                                        <div>
+                                            <p class="font-medium text-sm">Nova sessão agendada</p>
+                                            <p class="text-xs text-gray-500">Família Rodrigues - Hoje, 15:30</p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="border-b border-gray-100">
+                                    <a class="py-3">
+                                        <div>
+                                            <p class="font-medium text-sm">Relatório pronto</p>
+                                            <p class="text-xs text-gray-500">Caso #1234 - há 2 horas</p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="py-3">
+                                        <div>
+                                            <p class="font-medium text-sm">Novo usuário cadastrado</p>
+                                            <p class="text-xs text-gray-500">Dr. Paulo Silva - há 1 dia</p>
+                                        </div>
+                                    </a>
+                                </li>
+                                <div class="p-2 text-center">
+                                    <a href="#" class="text-sm text-primary hover:underline">Ver todas</a>
+                                </div>
+                            </ul>
+                        </div>
+                        <div class="dropdown dropdown-end">
+                            <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                                <div class="w-10 rounded-full">
+                                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=4F46E5&color=fff" />
+                                </div>
+                            </label>
+                            <ul tabindex="0" class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
+                                <li><a href="#" class="nav-link" data-target="perfil">Perfil</a></li>
+                                <li><a href="#" class="nav-link" data-target="configuracoes">Configurações</a></li>
+                                <li><a href="#" class="logout-btn">Sair</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page content -->
+                <div class="p-4 md:p-8">
+                    <!-- Dashboard Header -->
+                    <div class="mb-8 bg-gradient-to-r from-indigo-50 to-white p-6 rounded-xl shadow-sm">
+                        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+                        <p class="text-gray-600 mt-1">Bem-vindo ao Sistema Nova Chance</p>
+                        <div class="h-1 w-20 bg-primary mt-3 rounded-full"></div>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <div class="card-body">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-gray-500 text-sm">Total de Atendidos</p>
+                                        <h2 class="text-3xl font-bold">148</h2>
+                                    </div>
+                                    <div class="rounded-full p-3 bg-indigo-100">
+                                        <i class="fas fa-users text-indigo-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-sm text-green-600">
+                                    <i class="fas fa-arrow-up"></i> 12% desde o último mês
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-md card-hover transition-all">
+                            <div class="card-body">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-gray-500 text-sm">Sessões Realizadas</p>
+                                        <h2 class="text-3xl font-bold">342</h2>
+                                    </div>
+                                    <div class="rounded-full p-3 bg-purple-100">
+                                        <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-sm text-green-600">
+                                    <i class="fas fa-arrow-up"></i> 8% desde o último mês
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-md card-hover transition-all">
+                            <div class="card-body">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-gray-500 text-sm">Mediadores</p>
+                                        <h2 class="text-3xl font-bold">24</h2>
+                                    </div>
+                                    <div class="rounded-full p-3 bg-blue-100">
+                                        <i class="fas fa-user-tie text-blue-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-sm text-green-600">
+                                    <i class="fas fa-arrow-up"></i> 4% desde o último mês
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-base-100 shadow-md card-hover transition-all">
+                            <div class="card-body">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-gray-500 text-sm">Psicólogos</p>
+                                        <h2 class="text-3xl font-bold">18</h2>
+                                    </div>
+                                    <div class="rounded-full p-3 bg-pink-100">
+                                        <i class="fas fa-brain text-pink-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-sm text-green-600">
+                                    <i class="fas fa-arrow-up"></i> 6% desde o último mês
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities and Quick Actions -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <!-- Recent Activities -->
+                        <div class="lg:col-span-2">
+                            <div class="card bg-base-100 shadow-md h-full">
+                                <div class="card-body">
+                                    <h2 class="card-title text-gray-800 mb-4">
+                                        <i class="fas fa-history mr-2 text-indigo-600"></i>
+                                        Atividades Recentes
+                                    </h2>
+                                    <div class="overflow-x-auto">
+                                        <table class="table table-zebra w-full rounded-lg overflow-hidden">
+                                            <thead>
+                                                <tr>
+                                                    <th>Atendido</th>
+                                                    <th>Tipo</th>
+                                                    <th>Responsável</th>
+                                                    <th>Data</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Maria Silva</td>
+                                                    <td><span class="badge badge-primary">Mediação</span></td>
+                                                    <td>Dr. Carlos Mendes</td>
+                                                    <td>Hoje, 14:30</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>João Pereira</td>
+                                                    <td><span class="badge badge-secondary">Psicologia</span></td>
+                                                    <td>Dra. Ana Lúcia</td>
+                                                    <td>Hoje, 11:15</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Pedro Alves</td>
+                                                    <td><span class="badge badge-primary">Mediação</span></td>
+                                                    <td>Dr. Marcos Paulo</td>
+                                                    <td>Ontem, 16:45</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Carla Santos</td>
+                                                    <td><span class="badge badge-secondary">Psicologia</span></td>
+                                                    <td>Dra. Juliana Costa</td>
+                                                    <td>Ontem, 09:30</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Roberto Gomes</td>
+                                                    <td><span class="badge badge-primary">Mediação</span></td>
+                                                    <td>Dr. Carlos Mendes</td>
+                                                    <td>24/10/2023</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-actions justify-end mt-4">
+                                        <button class="btn btn-sm btn-outline btn-primary">Ver todas</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="lg:col-span-1">
+                            <div class="card bg-base-100 shadow-md h-full">
+                                <div class="card-body">
+                                    <h2 class="card-title text-gray-800 mb-4">
+                                        <i class="fas fa-bolt mr-2 text-indigo-600"></i>
+                                        Ações Rápidas
+                                    </h2>
+                                    <div class="space-y-3">
+                                        <button class="btn btn-primary w-full nav-link flex items-center justify-start gap-3 shadow-md hover:shadow-lg transition-all" data-target="novo-atendido">
+                                            <div class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center">
+                                                <i class="fas fa-user-plus"></i>
+                                            </div>
+                                            <span>Novo Atendido</span>
+                                        </button>
+                                        <button class="btn btn-outline btn-primary w-full nav-link flex items-center justify-start gap-3 mt-3 hover:bg-primary hover:text-white transition-all" data-target="agendar-sessao">
+                                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                                <i class="fas fa-calendar-plus"></i>
+                                            </div>
+                                            <span>Agendar Sessão</span>
+                                        </button>
+                                        <button class="btn btn-outline btn-primary w-full nav-link flex items-center justify-start gap-3 mt-3 hover:bg-primary hover:text-white transition-all" data-target="novo-prontuario">
+                                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                                <i class="fas fa-file-medical"></i>
+                                            </div>
+                                            <span>Novo Prontuário</span>
+                                        </button>
+                                        <button class="btn btn-outline btn-primary w-full nav-link flex items-center justify-start gap-3 mt-3 hover:bg-primary hover:text-white transition-all" data-target="relatorios">
+                                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </div>
+                                            <span>Relatórios</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="divider"></div>
+                                    
+                                    <h3 class="font-medium text-gray-800 mb-2">
+                                        <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>
+                                        Dica do dia
+                                    </h3>
+                                    <p class="text-sm text-gray-600">
+                                        A comunicação não-violenta pode ser uma ferramenta valiosa nas mediações familiares. Clique para saber mais.
+                                    </p>
+                                    <a href="#" class="text-indigo-600 text-sm mt-2 inline-block hover:underline">
+                                        Leia mais →
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Sessions -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Próximas Sessões</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 rounded-xl overflow-hidden">
+                                <div class="card-body">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-500">Hoje, 15:30</span>
+                                        <span class="badge badge-primary">Mediação</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg mt-2">Família Rodrigues</h3>
+                                    <p class="text-gray-600 text-sm">Mediador: Dr. Carlos Mendes</p>
+                                    <div class="flex items-center mt-3">
+                                        <div class="avatar-group -space-x-4">
+                                            <div class="avatar">
+                                                <div class="w-8">
+                                                    <img src="https://ui-avatars.com/api/?name=Antonio+R&background=4F46E5&color=fff" />
+                                                </div>
+                                            </div>
+                                            <div class="avatar">
+                                                <div class="w-8">
+                                                    <img src="https://ui-avatars.com/api/?name=Maria+R&background=7C3AED&color=fff" />
+                                                </div>
+                                            </div>
+                                            <div class="avatar">
+                                                <div class="w-8">
+                                                    <img src="https://ui-avatars.com/api/?name=Pedro+R&background=EC4899&color=fff" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm text-gray-500 ml-2">3 participantes</span>
+                                    </div>
+                                    <div class="card-actions justify-end mt-4">
+                                        <button class="btn btn-sm btn-outline nav-link" data-target="sessao-detalhes-1">Detalhes</button>
+                                        <button class="btn btn-sm btn-primary nav-link" data-target="sessao-iniciar-1">Iniciar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card bg-base-100 shadow-md card-hover">
+                                <div class="card-body">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-500">Hoje, 17:00</span>
+                                        <span class="badge badge-secondary">Psicologia</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg mt-2">Lucas Oliveira</h3>
+                                    <p class="text-gray-600 text-sm">Psicóloga: Dra. Ana Lúcia</p>
+                                    <div class="flex items-center mt-3">
+                                        <div class="avatar">
+                                            <div class="w-8 rounded-full">
+                                                <img src="https://ui-avatars.com/api/?name=Lucas+O&background=EC4899&color=fff" />
+                                            </div>
+                                        </div>
+                                        <span class="text-sm text-gray-500 ml-2">Sessão individual</span>
+                                    </div>
+                                    <div class="card-actions justify-end mt-4">
+                                        <button class="btn btn-sm btn-outline">Detalhes</button>
+                                        <button class="btn btn-sm btn-primary">Iniciar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card bg-base-100 shadow-md card-hover">
+                                <div class="card-body">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-500">Amanhã, 10:15</span>
+                                        <span class="badge badge-primary">Mediação</span>
+                                    </div>
+                                    <h3 class="font-bold text-lg mt-2">Família Costa</h3>
+                                    <p class="text-gray-600 text-sm">Mediador: Dr. Marcos Paulo</p>
+                                    <div class="flex items-center mt-3">
+                                        <div class="avatar-group -space-x-4">
+                                            <div class="avatar">
+                                                <div class="w-8">
+                                                    <img src="https://ui-avatars.com/api/?name=Sergio+C&background=4F46E5&color=fff" />
+                                                </div>
+                                            </div>
+                                            <div class="avatar">
+                                                <div class="w-8">
+                                                    <img src="https://ui-avatars.com/api/?name=Carla+C&background=7C3AED&color=fff" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm text-gray-500 ml-2">2 participantes</span>
+                                    </div>
+                                    <div class="card-actions justify-end mt-4">
+                                        <button class="btn btn-sm btn-outline">Detalhes</button>
+                                        <button class="btn btn-sm btn-primary">Iniciar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="drawer-side">
+                <label for="my-drawer-2" class="drawer-overlay"></label>
+                <div class="menu p-4 w-80 h-full bg-gradient-to-b from-base-100 to-base-200 text-base-content shadow-inner border-r border-gray-200">
+                    <div class="flex items-center gap-3 mb-8 mt-4">
+                        <div class="avatar">
+                            <div class="w-12 rounded-full gradient-bg text-white flex items-center justify-center text-2xl font-bold">
+                                NC
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Nova Chance</h2>
+                            <p class="text-sm text-gray-500">Mediação Familiar</p>
+                        </div>
+                    </div>
+
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#" class="nav-link flex items-center p-3 bg-primary text-primary-content rounded-lg shadow-md relative overflow-hidden" data-target="dashboard">
+                                <span class="absolute inset-0 bg-white opacity-10 rounded-lg"></span>
+                                <i class="fas fa-home w-5 h-5 mr-2"></i>
+                                <span class="font-medium">Dashboard</span>
+                                <span class="absolute right-2 top-1/2 transform -translate-y-1/2 w-1.5 h-8 bg-white rounded-full opacity-50"></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link flex items-center p-3 hover:bg-base-300 rounded-lg" data-target="atendidos">
+                                <i class="fas fa-users w-5 h-5 mr-2"></i>
+                                Atendidos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link flex items-center p-3 hover:bg-base-300 rounded-lg" data-target="prontuarios">
+                                <i class="fas fa-file-medical w-5 h-5 mr-2"></i>
+                                Prontuários
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link flex items-center p-3 hover:bg-base-300 rounded-lg" data-target="mediadores">
+                                <i class="fas fa-user-tie w-5 h-5 mr-2"></i>
+                                Mediadores
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link flex items-center p-3 hover:bg-base-300 rounded-lg" data-target="psicologos">
+                                <i class="fas fa-brain w-5 h-5 mr-2"></i>
+                                Psicólogos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link flex items-center p-3 hover:bg-base-300 rounded-lg" data-target="relatorios">
+                                <i class="fas fa-chart-bar w-5 h-5 mr-2"></i>
+                                Relatórios
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="divider"></div>
+
+                    <ul class="space-y-2">
+                        <li>
+                            <a class="flex items-center p-3 hover:bg-base-300 rounded-lg">
+                                <i class="fas fa-cog w-5 h-5 mr-2"></i>
+                                Configurações
+                            </a>
+                        </li>
+                        <li>
+                            <a class="flex items-center p-3 hover:bg-base-300 rounded-lg">
+                                <i class="fas fa-question-circle w-5 h-5 mr-2"></i>
+                                Ajuda
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="mt-auto pt-8">
+                        <div class="card bg-primary text-primary-content">
+                            <div class="card-body p-4">
+                                <h3 class="card-title text-base">Precisa de ajuda?</h3>
+                                <p class="text-sm">Acesse nosso guia de uso do sistema ou entre em contato com o suporte.</p>
+                                <div class="card-actions justify-end mt-2">
+                                    <button class="btn btn-sm btn-outline btn-secondary">Suporte</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-8 p-2">
+                            <div class="flex items-center gap-2">
+                                <div class="avatar">
+                                    <div class="w-10 rounded-full">
+                                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=4F46E5&color=fff" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="font-medium user-name">Admin</p>
+                                    <p class="text-xs text-gray-500 user-email">admin@novachance.org</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-ghost btn-sm logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para alternar o tema claro/escuro
+        function toggleTheme() {
+            const html = document.querySelector('html');
+            if (html.getAttribute('data-theme') === 'light') {
+                html.setAttribute('data-theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+            }
+        }
+        
+        // Inicialização do Supabase
+        const supabaseUrl = 'https://sua-url-do-supabase.supabase.co';
+        const supabaseKey = 'sua-chave-do-supabase';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // Função para login com Supabase
+        async function login() {
+            const email = document.getElementById('email-address').value;
+            const password = document.getElementById('password').value;
+            
+            // Validação simples
+            if (!email || !password) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+            
+            try {
+                // Login com Supabase
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                // Buscar dados do usuário
+                const { data: userData, error: userError } = await supabase
+                    .from('usuarios')
+                    .select('nome, cargo')
+                    .eq('email', email)
+                    .single();
+                    
+                if (userError) throw userError;
+                
+                // Oculta a tela de login
+                document.getElementById('login-screen').style.display = 'none';
+                // Mostra o sistema principal
+                document.getElementById('main-system').style.display = 'block';
+                
+                // Define o nome do usuário baseado nos dados do Supabase
+                let username = userData?.nome || 'Usuário';
+                let role = userData?.cargo || 'Usuário';
+                
+                // Atualiza os elementos da interface com o nome do usuário
+                document.querySelectorAll('.user-name').forEach(el => {
+                    el.textContent = username;
+                });
+                
+                document.querySelectorAll('.user-role').forEach(el => {
+                    el.textContent = role;
+                });
+                
+                document.querySelectorAll('.user-email').forEach(el => {
+                    el.textContent = email;
+                });
+                
+                // Salvar token na sessão
+                sessionStorage.setItem('supabase.auth.token', data.session.access_token);
+                
+            } catch (error) {
+                console.error('Erro de login:', error.message);
+                alert('Erro ao fazer login: ' + error.message);
+            }
+        }
+        
+        // Permitir login com Enter
+        document.getElementById('login-form').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+        
+        // Função para logout com Supabase
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                
+                // Limpar token da sessão
+                sessionStorage.removeItem('supabase.auth.token');
+                
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('main-system').style.display = 'none';
+                document.getElementById('email-address').value = '';
+                document.getElementById('password').value = '';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error.message);
+                alert('Erro ao fazer logout: ' + error.message);
+            }
+        }
+        
+        // Inicializar navegação e verificar sessão
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Verificar se o usuário já está logado
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                // Usuário já está logado, buscar dados
+                const { data: userData, error: userError } = await supabase
+                    .from('usuarios')
+                    .select('nome, cargo')
+                    .eq('email', session.user.email)
+                    .single();
+                
+                if (!userError) {
+                    // Oculta a tela de login
+                    document.getElementById('login-screen').style.display = 'none';
+                    // Mostra o sistema principal
+                    document.getElementById('main-system').style.display = 'block';
+                    
+                    // Atualiza os elementos da interface com o nome do usuário
+                    document.querySelectorAll('.user-name').forEach(el => {
+                        el.textContent = userData?.nome || 'Usuário';
+                    });
+                    
+                    document.querySelectorAll('.user-role').forEach(el => {
+                        el.textContent = userData?.cargo || 'Usuário';
+                    });
+                    
+                    document.querySelectorAll('.user-email').forEach(el => {
+                        el.textContent = session.user.email;
+                    });
+                }
+            }
+            
+            // Adicionar event listeners para os botões de logout
+            document.querySelectorAll('.logout-btn').forEach(btn => {
+                btn.addEventListener('click', logout);
+            });
+            
+            // Adicionar event listeners para os links de navegação
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('data-target');
+                    if (target) {
+                        // Aqui você pode implementar a navegação real
+                        console.log('Navegando para:', target);
+                        // Remover alerta para melhor UX
+                        // alert('Navegando para: ' + target);
+                        
+                        // Implementação futura com carregamento de componentes
+                        loadComponent(target);
+                    }
+                });
+            });
+        });
+        
+        // Função para carregar componentes dinamicamente
+        async function loadComponent(componentName) {
+            try {
+                // Exemplo de como carregar dados do Supabase para cada componente
+                let data = [];
+                
+                switch(componentName) {
+                    case 'atendidos':
+                        const { data: atendidosData, error: atendidosError } = await supabase
+                            .from('atendidos')
+                            .select('*');
+                        if (atendidosError) throw atendidosError;
+                        data = atendidosData;
+                        break;
+                    case 'prontuarios':
+                        const { data: prontuariosData, error: prontuariosError } = await supabase
+                            .from('prontuarios')
+                            .select('*');
+                        if (prontuariosError) throw prontuariosError;
+                        data = prontuariosData;
+                        break;
+                    // Adicionar outros casos conforme necessário
+                }
+                
+                console.log(`Dados carregados para ${componentName}:`, data);
+                // Aqui você implementaria a lógica para renderizar o componente com os dados
+            } catch (error) {
+                console.error(`Erro ao carregar componente ${componentName}:`, error.message);
+            }
+        }
+    </script>
+</body>
+</html>
